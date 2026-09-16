@@ -376,7 +376,7 @@ public sealed class MainForm : Form
 
     private void ApplyTheme(string themeName)
     {
-        _themeManager.ApplyTheme(themeName);
+        _ = themeName;
 
         BackColor = _themeManager.BackgroundPrimary;
         _topBar.BackColor = _themeManager.BackgroundPrimary;
