@@ -21,6 +21,7 @@ public sealed class MainForm : Form
     private readonly UserSettingsService _settingsService;
     private readonly ThemeManager _themeManager;
     private readonly ILogger<MainForm> _logger;
+    private readonly IBackupService _backupService;
 
     private readonly Panel _sidebarPanel = new();
     private readonly Panel _topBar = new();
@@ -69,7 +70,8 @@ public sealed class MainForm : Form
         UserSettingsService settingsService,
         ThemeManager themeManager,
         ILogger<MainForm> logger,
-        IMigrationHistoryService historyService)
+        IMigrationHistoryService historyService,
+        IBackupService backupService)
     {
         _connectionService = connectionService;
         _historyService = historyService;
@@ -80,6 +82,7 @@ public sealed class MainForm : Form
         _settingsService = settingsService;
         _themeManager = themeManager;
         _logger = logger;
+        _backupService = backupService;
 
         InitializeComponent();
         BuildPages();
@@ -310,7 +313,7 @@ public sealed class MainForm : Form
             _themeManager,
             _settingsService,
             GetCurrentConnectionString);
-        var backups = new BackupsPage(_themeManager);
+        var backups = new BackupsPage(_themeManager, _backupService, GetCurrentConnectionString);
         var logs = new LogsPage(_themeManager);
         var settings = new SettingsPage(_settingsService, _themeManager);
         var about = new AboutPage(_themeManager);

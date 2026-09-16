@@ -47,7 +47,7 @@ public sealed class MigrationExecutorService
             if (request.CreateBackup)
             {
                 _logger.LogInformation("Creating backup before executing migration '{MigrationId}'.", migration.MigrationId);
-                backupPath = await _backupService.CreateBackupAsync(request.ConnectionString, Path.GetFileNameWithoutExtension(migration.FilePath), cancellationToken);
+                backupPath = await _backupService.CreateBackupAsync(request.ConnectionString, null, migration.MigrationId, cancellationToken);
             }
 
             await _historyService.RecordStartAsync(
@@ -144,7 +144,7 @@ public sealed class MigrationExecutorService
             if (request.CreateBackup)
             {
                 _logger.LogInformation("Creating backup before executing FluentMigrator migration '{MigrationName}'.", migration.MigrationName);
-                backupPath = await _backupService.CreateBackupAsync(request.ConnectionString, Path.GetFileNameWithoutExtension(migration.AssemblyPath), cancellationToken);
+                backupPath = await _backupService.CreateBackupAsync(request.ConnectionString, null, migrationId, cancellationToken);
             }
 
             await _historyService.RecordStartAsync(
