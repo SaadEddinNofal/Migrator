@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish single-file exe
+        run: dotnet publish src/Migrator.UI/Migrator.UI.csproj -c Release -p:PublishProfile=win-x64-single-file -o artifacts
+
+      - name: Create Release & upload
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Migrator ${{ github.ref_name }}"
+          body_path: release-notes.md
+          files: artifacts/Migrator.exe
+          draft: false
