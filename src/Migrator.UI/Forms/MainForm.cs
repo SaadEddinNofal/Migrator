@@ -88,6 +88,11 @@ public sealed class MainForm : Form
         BuildPages();
         ApplyTheme(_themeManager.CurrentTheme.ToString());
         NavigateTo("Dashboard");
+
+        _logger.LogInformation(
+            "Migrator v1.0.0 started on machine '{MachineName}' by user '{UserName}'.",
+            Environment.MachineName,
+            Environment.UserName);
     }
 
     private void InitializeComponent()
@@ -423,6 +428,8 @@ public sealed class MainForm : Form
     {
         try
         {
+            _logger.LogInformation("Migrator is shutting down.");
+
             _settingsService.Current.WindowWidth = Width;
             _settingsService.Current.WindowHeight = Height;
             _settingsService.Save();
