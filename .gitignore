@@ -1,0 +1,55 @@
+## .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+bld/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+## Publish output
+publish/
+/PublishProfiles/
+bin/Release/publish/
+
+## Logs
+*.log
+logs/
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## Mac/Linux
+.DS_Store
+Thumbs.db
+
+## Credentials
+appsettings.Development.json
+*.env
+.env*
+
+## User secrets
+secrets.json
+
+## Test results
+[Tt]est[Rr]esult*/
+TestResults/
