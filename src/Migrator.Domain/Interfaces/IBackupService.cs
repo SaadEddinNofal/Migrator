@@ -4,7 +4,7 @@ namespace Migrator.Domain.Interfaces;
 
 public interface IBackupService
 {
-    Task<string> CreateBackupAsync(
+    Task<string?> CreateBackupAsync(
         string connectionString,
         string? databaseName = null,
         string? migrationId = null,

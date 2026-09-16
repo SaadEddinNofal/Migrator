@@ -58,8 +58,13 @@ public sealed class MigrationValidationService : IMigrationValidationService
 
         if (existing.Status == MigrationStatus.Failed)
         {
-            result.IsValid = false;
-            result.ErrorMessage = $"Migration '{migrationName}' previously failed: {existing.ErrorMessage}";
+            result.IsValid = true;
+            result.IsChecksumMismatch = false;
+            result.StoredChecksum = null;
+            result.CurrentChecksum = null;
+            result.ErrorMessage = null;
+            result.Warnings.Add(
+                $"The migration '{migrationName}' previously failed and will be re-executed. Previous error: {existing.ErrorMessage}");
         }
 
         if (!isSameChecksum && existing.Status == MigrationStatus.Applied)

@@ -39,9 +39,14 @@ public sealed class SqlServerBackupService : IBackupService
         ORDER BY CreatedAt DESC, Id DESC;
         """;
 
-    public async Task<string> CreateBackupAsync(string connectionString, string? databaseName = null, string? migrationId = null, CancellationToken cancellationToken = default)
+    public async Task<string?> CreateBackupAsync(string connectionString, string? databaseName = null, string? migrationId = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+        if (!IsLocalServer(connectionString))
+        {
+            return null;
+        }
 
         if (string.IsNullOrWhiteSpace(databaseName))
         {
@@ -61,12 +66,10 @@ public sealed class SqlServerBackupService : IBackupService
             Directory.CreateDirectory(directory);
         }
 
-        string quotedDatabaseName = "[" + databaseName.Replace("]", "]]") + "]";
-
         const string commandText = """
             BACKUP DATABASE @DatabaseName
             TO DISK = @BackupPath
-            WITH INIT, COMPRESSION, STATS = 0;
+            WITH INIT, COMPRESSION;
             """;
 
         var sw = Stopwatch.StartNew();
@@ -75,7 +78,7 @@ public sealed class SqlServerBackupService : IBackupService
             await using var executorConnection = new SqlConnection(connectionString);
             await executorConnection.OpenAsync(cancellationToken);
             await using var cmd = new SqlCommand(commandText, executorConnection);
-            cmd.Parameters.AddWithValue("@DatabaseName", quotedDatabaseName);
+            cmd.Parameters.AddWithValue("@DatabaseName", databaseName);
             cmd.Parameters.AddWithValue("@BackupPath", backupPath);
             await cmd.ExecuteNonQueryAsync(cancellationToken);
 
@@ -233,6 +236,32 @@ public sealed class SqlServerBackupService : IBackupService
 
         string fileName = $"{SanitizeFileName(databaseName)}_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
         return Path.Combine(directory, fileName);
+    }
+
+    private static bool IsLocalServer(string connectionString)
+    {
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        string dataSource = builder.DataSource?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(dataSource))
+        {
+            return true;
+        }
+
+        string host = dataSource.Split(',')[0].Trim().Trim('[', ']');
+        int slashIndex = host.IndexOf('\\');
+        if (slashIndex >= 0)
+        {
+            host = host[..slashIndex];
+        }
+
+        return host.Equals(".", StringComparison.OrdinalIgnoreCase)
+            || host.Equals("(local)", StringComparison.OrdinalIgnoreCase)
+            || host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+            || host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+            || host.Equals("::1", StringComparison.OrdinalIgnoreCase)
+            || host.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase)
+            || host.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string SanitizeFileName(string value)

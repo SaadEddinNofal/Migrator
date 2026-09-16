@@ -845,6 +845,8 @@ public sealed class MigrationPage : UserControl
                 ShowSuccess($"Migration: {result.MigrationId}_{result.MigrationName}");
                 if (result.BackupPath is not null)
                     ShowSuccess($"Backup created: {result.BackupPath}");
+                else if (createBackup)
+                    ShowMessage("Backup skipped: target SQL Server is not local.");
             }
             else
             {
